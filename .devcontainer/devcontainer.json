@@ -30,7 +30,8 @@
                 "vscjava.vscode-lombok",
                 "esbenp.prettier-vscode",
                 "sonarsource.sonarlint-vscode",
-                "gruntfuggly.todo-tree"
+                "gruntfuggly.todo-tree",
+                "mutantdino.resourcemonitor"
                                 // "kabirsarkar.spring-boot-gradle-extension-pack",
             ]
         }

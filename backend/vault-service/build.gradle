@@ -9,3 +9,14 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
+bootRun {
+    if (!project.hasProperty('springProfilesActive')) {
+        systemProperty 'spring.profiles.active', 'dev' // default profile 
+    }
+}
+
+
+bootJar {
+    archiveBaseName.set('vault-service')
+    archiveVersion.set('')
+}

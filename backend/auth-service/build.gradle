@@ -8,4 +8,13 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
+bootRun {
+    if (!project.hasProperty('springProfilesActive')) {
+        systemProperty 'spring.profiles.active', 'dev' // default profile 
+    }
+}
 
+bootJar {
+    archiveBaseName.set('auth-service')
+    archiveVersion.set('')
+}
