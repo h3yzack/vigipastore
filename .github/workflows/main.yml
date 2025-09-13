@@ -58,4 +58,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
 
       - name: Deploy to S3
-        run: aws s3 sync frontend/mypass-vault-app/build/ s3://h3yzack-mypass-vault-app --delete
+        run: aws s3 sync frontend/mypass-vault-app/build/ s3://h3yzack-my-pass-vault-app --delete
+
+        
