@@ -31,7 +31,8 @@
                 "esbenp.prettier-vscode",
                 "sonarsource.sonarlint-vscode",
                 "gruntfuggly.todo-tree",
-                "mutantdino.resourcemonitor"
+                "mutantdino.resourcemonitor",
+                "github.vscode-github-actions"
                                 // "kabirsarkar.spring-boot-gradle-extension-pack",
             ]
         }
