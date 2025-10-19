@@ -1,6 +1,0 @@
-spring:
-    application:
-        name: vault-service
-
-server:
-    port: 8081
