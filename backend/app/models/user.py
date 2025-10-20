@@ -2,46 +2,49 @@ from typing import Optional
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, LargeBinary, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 from ..database import Base 
 
 class User(Base):
     __tablename__ = "users"
 
-    id: int = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    full_name: str = Column(String, nullable=False)
+    full_name: Mapped[str] = mapped_column(String, nullable=False)
 
-    email: str = Column(String, index=True, nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String, index=True, nullable=False, unique=True)
 
-    master_key_salt: bytes = Column(LargeBinary(length=32), nullable=False)  # Salt for KDF
+    master_key_salt: Mapped[bytes] = mapped_column(LargeBinary(length=32), nullable=False)  # Salt for KDF
 
-    master_key_verifier: bytes = Column(LargeBinary(length=64), nullable=False)  # Verifier for password check
+    master_key_verifier: Mapped[bytes] = mapped_column(LargeBinary(length=64), nullable=False)  # Verifier for password check
 
-    vault_key_encrypted: bytes = Column(LargeBinary, nullable=False)  # Encrypted vault key
+    vault_key_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)  # Encrypted vault key
 
     # ----------------------------------------------------------------------
     # --- Two-Factor Authentication (2FA)  ---
     # ----------------------------------------------------------------------
 
-    two_fa_enabled: bool = Column(Boolean, default=False, nullable=False)
+    two_fa_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    two_factor_secret_encrypted: Optional[bytes] = Column(
+    two_factor_secret_encrypted: Mapped[Optional[bytes]] = mapped_column(
         LargeBinary, 
         default=None
     )  # Encrypted 2FA secret
 
-    recovery_codes_hash: Optional[str] = Column(
+    recovery_codes_hash: Mapped[Optional[str]] = mapped_column(
         String, 
         default=None
     )  # Hashed recovery codes for 2FA
 
     # --- Metadata/Tracking Fields ---
-    created_at: datetime = Column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(), nullable=False
     )
 
-    updated_at: datetime = Column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(), nullable=True, onupdate=func.now()
     ) 
 
-    last_login_at: Optional[datetime] = Column(DateTime, default=None, nullable=True)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, default=None, nullable=True
+    )
