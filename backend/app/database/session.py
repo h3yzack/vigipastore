@@ -15,7 +15,7 @@ DATABASE_URL = (
 # ---------------------------------------------------------------------
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,              # set True for SQL debug logs
+    echo=False,              # set True for SQL debug logs
     future=True,             
     pool_pre_ping=True,      # auto-check broken connections
 )

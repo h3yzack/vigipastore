@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # Security Configuration
     MASTER_KEY_KDF_SALT_LENGTH: int = 32 
     MASTER_KEY_VERIFIER_LENGTH: int = 64
+
+    SERVER_KEY: str
+    SERVER_ID: str = "VigiPastore"
     
     # Pydantic configuration to load variables from a .env file
     # In production (AWS), these would be loaded from environment variables

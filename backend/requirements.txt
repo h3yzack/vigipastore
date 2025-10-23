@@ -28,6 +28,7 @@ MarkupSafe==3.0.3
 mdurl==0.1.2
 msgpack==1.1.2
 msgpack-python==0.5.6
+opaque==1.0.0
 packaging==25.0
 passlib==1.7.4
 petlib_fork==0.0.45
@@ -39,6 +40,7 @@ pydantic==2.12.3
 pydantic-settings==2.11.0
 pydantic_core==2.41.4
 Pygments==2.19.2
+pysodium==0.7.18
 pytest==8.4.2
 pytest-cov==7.0.0
 python-dotenv==1.1.1

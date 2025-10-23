@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Progress, Select, type SelectProps } from "antd";
 import { useEffect, useState } from "react";
-import { calculatePasswordStrength, type DataType } from "../utils/shared";
+import { calculatePasswordStrength } from "@/common/utils/validationUtils";
+import type { VaultRecord } from "@/common/types/secret";
 
 
 
@@ -13,7 +14,7 @@ export default function AddSecret({
     visible: boolean;
     onCreate: (values: any) => void;
     onCancel: () => void;
-    editRecord?: DataType | null;
+    editRecord?: VaultRecord | null;
 }) {
     const [form] = Form.useForm();
     const isEditMode = editRecord !== null;

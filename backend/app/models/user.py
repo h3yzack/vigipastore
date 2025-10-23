@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import datetime
+import uuid
 from sqlalchemy import Column, Integer, String, Boolean, LargeBinary, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped, relationship, mapped_column
@@ -8,7 +9,8 @@ from ..database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    # id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
 
     full_name: Mapped[str] = mapped_column(String, nullable=False)
 
@@ -18,7 +20,9 @@ class User(Base):
 
     master_key_verifier: Mapped[bytes] = mapped_column(LargeBinary(length=64), nullable=False)  # Verifier for password check
 
-    vault_key_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)  # Encrypted vault key
+    vault_key_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)  # Encrypted vault key
+
+    vault_key_nonce: Mapped[bytes] = mapped_column(LargeBinary(length=12), nullable=True)  # Nonce for vault key encryption
 
     # ----------------------------------------------------------------------
     # --- Two-Factor Authentication (2FA)  ---
