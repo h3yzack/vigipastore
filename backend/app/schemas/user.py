@@ -110,10 +110,18 @@ class UserLogin(BaseModel):
 class UserPublic(UserPublicBase):
     pass
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class TokenPayload(BaseModel):
+    sub: str
+    exp: int
+    jti: Optional[str] = None
+
 class AuthResponse(BaseModel):
     status: bool
     access_token: str 
-    token_type: str = "bearer"
     master_key_salt: bytes
     encrypted_vault_key: bytes
     vault_key_nonce: bytes

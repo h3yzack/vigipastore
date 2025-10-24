@@ -4,6 +4,8 @@ from fastapi import HTTPException, status
 import opaque
 from sqlalchemy.ext.asyncio import AsyncSession
 import time
+
+from ..core.auth_jwt import create_access_token
 from ..core.common import base64url_decode, base64url_encode
 from ..schemas.user import AuthResponse, LoginFinishRequest, LoginStartRequest, LoginStartResponse, RegisterFinishRequest, RegisterFinishResponse, RegisterStartRequest, RegistrationStartResponse, UserPublic, UserRegister
 from ..crud.user_crud import get_user_by_email, create_user
@@ -160,10 +162,12 @@ async def process_user_login_finish(request: LoginFinishRequest, db: AsyncSessio
         # if matched, no error thrown
         opaque.UserAuth(secS, request.finish_login_request) 
 
-        # TODO: to generate JWT token 
+        # JWT token
+        access_token = create_access_token(subject=user.id)
+
         auth_response = AuthResponse(
             status=True,
-            access_token="mock==",
+            access_token=access_token,
             master_key_salt=user.master_key_salt,
             encrypted_vault_key=user.vault_key_encrypted,
             vault_key_nonce=user.vault_key_nonce,
