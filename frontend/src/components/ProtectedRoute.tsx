@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router';
-import { useAuth } from '../contexts/AuthContext';
+
 import { Spin } from 'antd';
+import { useAuth } from '@/common/hook/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

@@ -4,9 +4,14 @@ import { PlusOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design
 import SecretList from "../components/secret-list";
 import AddSecret from "../components/secret-form";
 import { useState } from "react";
-import type { DataType } from "../utils/shared";
+import type { VaultRecord } from "@/common/types/secret";
+import { useAuth } from "@/common/hook/useAuth";
+import { getUserInfo } from "@/api/userApi";
+
 
 export default function HomePage() {
+  const { userInfo } = useAuth();
+
   const onChange = (value: string) => {
     console.log(`selected ${value}`);
   };
@@ -17,8 +22,8 @@ export default function HomePage() {
 
   // Centralized state management
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<DataType | null>(null);
-  const [data, setData] = useState<DataType[]>([
+  const [editingRecord, setEditingRecord] = useState<VaultRecord | null>(null);
+  const [data, setData] = useState<VaultRecord[]>([
     {
       id: "1",
       key: "1",
@@ -49,19 +54,19 @@ export default function HomePage() {
   ]);
 
   // Show add new modal
-  const showAddModal = () => {
+  const showAddModal = async () => {
     setEditingRecord(null);
     setIsModalVisible(true);
   };
 
   // Show edit modal
-  const showEditModal = (record: DataType) => {
+  const showEditModal = (record: VaultRecord) => {
     setEditingRecord(record);
     setIsModalVisible(true);
   };
 
   // Delete record
-  const handleDelete = (record: DataType) => {
+  const handleDelete = (record: VaultRecord) => {
     console.log("Deleting record:", record);
     setData(data.filter((item) => item.id !== record.id));
   };
@@ -94,7 +99,7 @@ export default function HomePage() {
     } else {
       // Add new record
       console.log("Adding new record:", values);
-      const newRecord: DataType = {
+      const newRecord: VaultRecord = {
         id: Date.now().toString(),
         key: Date.now().toString(),
         name: values.name,

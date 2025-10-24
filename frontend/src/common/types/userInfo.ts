@@ -2,6 +2,7 @@ export interface UserInfo {
   id?: string;
   fullName: string;
   email: string;
+  twoFaStatus?: boolean;
 }
 
 export interface RegisterFormData {
@@ -58,4 +59,11 @@ export interface LoginFinishResponse {
   masterKeySalt: string;
   encryptedVaultKey: string;
   vaultKeyNonce: string;
+  userInfo: UserInfo;
+}
+
+export interface LoginInfo {
+  accessToken: string;
+  vaultKey: Uint8Array;
+  userInfo: UserInfo;
 }

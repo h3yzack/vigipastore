@@ -1,92 +1,63 @@
 import { appConfig } from "@/common/appConfig";
-import type {
-    LoginFinishRequest,
-    LoginFinishResponse,
-    LoginStartRequest,
-    LoginStartResponse,
-    RegisterFinishRequest,
-    RegisterFinishResponse,
-    RegisterStartRequest,
-    RegisterStartResponse,
-} from "@/common/types/userInfo";
-import { getApiErrorMessage } from "@/common/utils/exceptionUtils";
 import axios from "axios";
 
-const api = axios.create({
+let getAccessToken: (() => string | null) | null = null;
+let onUnauthorized: (() => void) | null = null;
+
+export const setAuthHelpers = (helpers: {
+    getAccessToken: () => string | null;
+    onUnauthorized: () => void;
+}) => {
+    getAccessToken = helpers.getAccessToken;
+    onUnauthorized = helpers.onUnauthorized;
+};
+
+function isPublicEndpoint(url: string): boolean {
+    const publicEndpoints = appConfig.API.SECURITY.PUBLIC_PATHS;
+
+    const path = url.replace(/^https?:\/\/[^/]+/, "").split("?")[0];
+
+    return publicEndpoints.some((prefix) => {
+        const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex chars
+        const regex = new RegExp("^" + escapedPrefix.replace("\\*", ".*") + "$");
+        return regex.test(path);
+    });
+}
+
+// ---------------------------------------------------------
+//  Axios client setup
+// ---------------------------------------------------------
+export const apiClient = axios.create({
     baseURL: appConfig.API_SERVER_URL,
     withCredentials: true,
+    timeout: 10000,
 });
 
-export async function registerUserStartRequest(request: RegisterStartRequest): Promise<RegisterStartResponse> {
-    try {
-        const serverResp = await api.post(appConfig.API.ENDPOINTS.REGISTER_START, {
-            email: request.email,
-            registration_request: request.registrationRequest,
-        });
+// Request Interceptor
+apiClient.interceptors.request.use(
+    (config) => {
+        const accessToken = getAccessToken ? getAccessToken() : null;
+        const url = config.url || "";
+        const isPublic = isPublicEndpoint(url);
 
-        const response: RegisterStartResponse = {
-            registrationResponse: serverResp.data.registration_response,
-        };
+        console.log(`API Request to ${url} | isPublic: ${isPublic}`);
 
-        return response;
-    } catch (error: any) {
-        console.error("registerUserStartRequest - error", error);
-        throw new Error(getApiErrorMessage(error, "Registration failed."));
+        if (accessToken && config.url && !isPublic) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Response Interceptor
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401 && onUnauthorized) {
+            console.warn("Unauthorized or expired token — logging out");
+            onUnauthorized(); // call logout()
+        }
+        return Promise.reject(error);
     }
-}
-
-export async function finalizeUserRegister(request: RegisterFinishRequest): Promise<RegisterFinishResponse> {
-    try {
-        const serverResp = await api.post(appConfig.API.ENDPOINTS.REGISTER_FINISH, {
-            user_info: { full_name: request.userInfo.fullName, email: request.userInfo.email },
-            master_key_salt: request.masterKeySalt,
-            encrypted_vault_key: request.encryptedVaultKey,
-            vault_key_nonce: request.vaultKeyNonce,
-            master_key_verifier: request.masterKeyVerifier,
-        });
-
-        // const response: RegisterFinishResponse = {
-        //   registrationResponse: serverResp.data.registration_response,
-        // };
-
-        return serverResp.data;
-    } catch (error: any) {
-        console.error("finalizeUserRegister - error", error);
-        throw new Error(getApiErrorMessage(error, "Registration failed."));
-    }
-}
-
-export async function loginStartRequest(request: LoginStartRequest): Promise<LoginStartResponse> {
-    try {
-        const response = await api.post(appConfig.API.ENDPOINTS.LOGIN_START, {
-          email: request.email,
-          login_request: request.loginRequest
-        });
-
-        return {loginResponse: response.data.login_response};
-        
-    } catch (error: any) {
-        console.error("loginStartRequest - error", error);
-        throw new Error(getApiErrorMessage(error, "Login failed."));
-    }
-}
-
-export async function finalizeUserLogin(request: LoginFinishRequest): Promise<LoginFinishResponse> {
-    try {
-        const response = await api.post(appConfig.API.ENDPOINTS.LOGIN_FINISH, {
-            email: request.email,
-            finish_login_request: request.finishLoginRequest
-        });
-
-        return {
-            status: response.data.status,
-            accessToken: response.data.access_token,
-            masterKeySalt: response.data.master_key_salt,
-            encryptedVaultKey: response.data.encrypted_vault_key,
-            vaultKeyNonce: response.data.vault_key_nonce
-        };
-    } catch (error: any) {
-        console.error("finalizeUserLogin - error", error);
-        throw new Error(getApiErrorMessage(error, "Login failed."));
-    }
-}
+);

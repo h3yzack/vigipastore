@@ -9,11 +9,19 @@ export interface VaultRecord {
 }
 
 export interface DerivedVaultKeys {
-  masterKeySalt?: Uint8Array;
-  vaultKeyEncrypted?: Uint8Array;
-  vaultKeyNonce?: Uint8Array;
+  masterKeySalt: Uint8Array;
+  vaultKeyEncrypted: Uint8Array;
+  vaultKeyNonce: Uint8Array;
+}
+
+export interface EncryptedVaultKeys {
+  vaultKeyEncrypted: Uint8Array;
+  vaultKeyNonce: Uint8Array;
+}
+
+export interface MasterKey {
   masterKey: Uint8Array;
-  vaultKey?: Uint8Array;
+  masterKeySalt: Uint8Array;
 }
 
 export interface EncryptedExportKey {

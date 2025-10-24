@@ -8,7 +8,7 @@ import logo from "./assets/logo.svg";
 
 import "./App.css";
 import { Link, Outlet, useNavigate, useLocation } from "react-router";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuth } from "@/common/hook/useAuth";
 
 const { Header, Content, Footer } = Layout;
 

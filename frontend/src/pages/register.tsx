@@ -3,22 +3,12 @@ import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutli
 import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
 import logo from '../assets/logo.svg';
+import type { PasswordStrength } from '@/common/types/app';
+import { calculatePasswordStrength } from '@/common/utils/validationUtils';
+import type { RegisterFormData } from '@/common/types/userInfo';
+import { register } from '@/features/auth/services/authService';
 
 const { Title, Text } = Typography;
-
-interface RegisterFormData {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface PasswordStrength {
-  percent: number;
-  status: 'normal' | 'success' | 'exception';
-  color: string;
-  text: string;
-}
 
 export default function RegisterPage() {
   const [form] = Form.useForm();
@@ -31,30 +21,7 @@ export default function RegisterPage() {
     text: ''
   });
 
-  // Password strength calculator
-  const calculatePasswordStrength = (password: string): PasswordStrength => {
-    let score = 0;
-    if (password.length >= 8) score += 25;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 25;
-    if (/\d/.test(password)) score += 25;
-    if (/[^a-zA-Z0-9]/.test(password)) score += 25;
-    
-    let status: 'normal' | 'success' | 'exception' = 'exception';
-    let color = '#ff4d4f';
-    let text = 'Weak';
-    
-    if (score >= 75) {
-      status = 'success';
-      color = '#52c41a';
-      text = 'Strong';
-    } else if (score >= 50) {
-      status = 'normal';
-      color = '#faad14';
-      text = 'Medium';
-    }
-    
-    return { percent: score, status, color, text };
-  };
+  
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const strength = calculatePasswordStrength(e.target.value);
@@ -64,12 +31,16 @@ export default function RegisterPage() {
   const handleRegister = async (values: RegisterFormData) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      console.log('Registration data:', values);
-      message.success('Account created successfully! Please log in.');
-      navigate('/login');
+      const result = await register(values);
+
+      console.log('Registration result:', result);
+      if (result) {
+        message.success('Account created successfully! Please log in.');
+        navigate('/login');
+      } else {
+        message.error('Registration failed. Please try again.');
+      }
     } catch {
       message.error('Registration failed. Please try again.');
     } finally {

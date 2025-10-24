@@ -2,36 +2,30 @@ import { Form, Input, Button, Card, Typography, Divider, message } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/logo.svg';
+import type { LoginFormData } from '@/common/types/userInfo';
+import { useAuth } from '@/common/hook/useAuth';
 
 const { Title, Text } = Typography;
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
 
 export default function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const {login} = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (values: LoginFormData) => {
+  const handleLogin = async (formData: LoginFormData) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate mock token
-      const token = 'mock-token-' + Date.now();
-      
-      // Use auth context to login
-      login(values.email, token);
-      
-      message.success('Login successful!');
-      navigate('/');
+
+      const loginResult = await login(formData);
+
+      if (loginResult) {
+        message.success('Login success!');
+        navigate('/');
+      } else {
+        message.error('Login failed. Please try again.');
+      }
     } catch {
       message.error('Login failed. Please try again.');
     } finally {

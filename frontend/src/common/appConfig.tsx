@@ -9,12 +9,17 @@ export const appConfig = {
     APP_VERSION: import.meta.env.APP_VERSION || '1.0.0',
 
     API: {
+        SECURITY: {
+            PUBLIC_PATHS: [
+                '/auth/*'
+            ]
+        },
         ENDPOINTS: {
             LOGIN_START: '/auth/login/start',
             LOGIN_FINISH: '/auth/login/finish',
             REGISTER_START: '/auth/register/start',
             REGISTER_FINISH: '/auth/register/finish',
-            USER_PROFILE: '/user/profile',
+            USER_PROFILE: '/user/:id',
         }
     }
 };

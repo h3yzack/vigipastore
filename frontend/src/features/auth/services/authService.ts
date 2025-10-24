@@ -1,13 +1,15 @@
-import * as api from "@/api/baseApi";
-import type { LoginFormData, LoginStartRequest, RegisterFormData } from "@/common/types/userInfo";
-import { toUrlSafeBase64 } from "@/common/utils/appUtils";
+import * as api from "@/api/authApi";
+import type { LoginFormData, LoginInfo, LoginStartRequest, RegisterFormData } from "@/common/types/userInfo";
+import { fromSafeUrlStrToBase64, strToUrlSafeBase64 } from "@/common/utils/appUtils";
 import {
     clearMemory,
     clientFinishLogin,
     clientFinishRegistration,
     clientStartLogin,
     clientStartRegistration,
+    deriveMasterKey,
     deriveVaultKeys,
+    getDecryptedVaultKey,
 } from "@/common/utils/cryptoClient";
 
 export async function register(formData: RegisterFormData) {
@@ -45,16 +47,16 @@ export async function register(formData: RegisterFormData) {
 
         console.log("register - derived keys", derivedVaultKeys);
 
-        await clearMemory(derivedVaultKeys.masterKey, derivedVaultKeys.vaultKey);
+        // await clearMemory(derivedVaultKeys.masterKey, derivedVaultKeys.vaultKey);
 
         const regiserPayload = {
             userInfo: {
                 fullName: formData.fullName,
                 email: formData.email,
             },
-            masterKeySalt: toUrlSafeBase64(derivedVaultKeys.masterKeySalt!),
-            encryptedVaultKey: toUrlSafeBase64(derivedVaultKeys.vaultKeyEncrypted!),
-            vaultKeyNonce: toUrlSafeBase64(derivedVaultKeys.vaultKeyNonce!),
+            masterKeySalt: strToUrlSafeBase64(derivedVaultKeys.masterKeySalt!),
+            encryptedVaultKey: strToUrlSafeBase64(derivedVaultKeys.vaultKeyEncrypted!),
+            vaultKeyNonce: strToUrlSafeBase64(derivedVaultKeys.vaultKeyNonce!),
             masterKeyVerifier: registrationRecord,
         };
 
@@ -69,7 +71,7 @@ export async function register(formData: RegisterFormData) {
     }
 }
 
-export async function processLogin(formData: LoginFormData): Promise<boolean> {
+export async function processLogin(formData: LoginFormData): Promise<LoginInfo | boolean> {
     try {
         console.log("Start login process");
         const { clientLoginState, startLoginRequest } = await clientStartLogin(formData.password);
@@ -101,9 +103,19 @@ export async function processLogin(formData: LoginFormData): Promise<boolean> {
 
             console.log("finalizeUserLogin response:", response);
 
-            // TODO: store session token securely
+            if (response.status) {
+                // derive master key 
+                const {masterKey} = await deriveMasterKey(formData.password, fromSafeUrlStrToBase64(response.masterKeySalt));
+                // decrypt vault key
+                const vaultKey = await getDecryptedVaultKey(formData.email, masterKey, 
+                    fromSafeUrlStrToBase64(response.encryptedVaultKey), fromSafeUrlStrToBase64(response.vaultKeyNonce));
 
-            return response.status;
+                await clearMemory(masterKey, undefined);
+
+                return {accessToken: response.accessToken, vaultKey, userInfo: response.userInfo}
+            }
+
+            return false;
         }
     } catch (error) {
         console.error("Login error:", error);

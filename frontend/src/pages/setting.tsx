@@ -28,7 +28,8 @@ import {
   SafetyOutlined
 } from '@ant-design/icons';
 import { useState } from 'react';
-import { calculatePasswordStrength, type PasswordStrength } from '../utils/shared';
+import type { PasswordStrength } from '@/common/types/app';
+import { calculatePasswordStrength } from '@/common/utils/validationUtils';
 
 const { TabPane } = Tabs;
 
@@ -60,7 +61,8 @@ export default function SettingPage() {
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({ 
     percent: 0, 
     status: 'normal', 
-    color: '#d9d9d9' 
+    color: '#d9d9d9',
+    text: ''
   });
 
 
@@ -73,7 +75,7 @@ export default function SettingPage() {
     console.log('Master password change:', values);
     message.success('Master password updated successfully');
     masterPasswordForm.resetFields();
-    setPasswordStrength({ percent: 0, status: 'normal', color: '#d9d9d9' });
+    setPasswordStrength({ percent: 0, status: 'normal', color: '#d9d9d9', text: '' });
   };
 
   const handleAccountSubmit = (values: AccountFormData) => {
