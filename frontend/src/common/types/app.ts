@@ -21,4 +21,10 @@ export interface AuthContextType {
 
   isAuthenticated: boolean;
   loading: boolean;
+
+  timeLeft: number | null;
+  showReauthPrompt: boolean;
+  handleReauth: () => void;
+  setUserEmail: (email: string) => void;
+  userEmail: string | null;
 }

@@ -40,7 +40,7 @@ function App() {
     
     if (pathSegments.length === 0) {
       // Root path "/"
-      return [{ title: 'Home' }];
+      return [{title: "Main"},{ title: <Link to={pathSegments[0]}>Home</Link> }];
     }
 
     const items: Array<{ title: string | React.ReactNode }> = [];
@@ -54,7 +54,7 @@ function App() {
       
       if (index === pathSegments.length - 1) {
         // Last segment - not clickable
-        items.push({ title });
+        items.push({title:  <Link to={"/"}>Main</Link>}, { title: <Link to={currentPath}>{title}</Link> });
       } else {
         // Intermediate segments - clickable
         items.push({ 

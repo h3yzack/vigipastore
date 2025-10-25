@@ -5,12 +5,9 @@ import SecretList from "../components/secret-list";
 import AddSecret from "../components/secret-form";
 import { useState } from "react";
 import type { VaultRecord } from "@/common/types/secret";
-import { useAuth } from "@/common/hook/useAuth";
-import { getUserInfo } from "@/api/userApi";
 
 
 export default function HomePage() {
-  const { userInfo } = useAuth();
 
   const onChange = (value: string) => {
     console.log(`selected ${value}`);
