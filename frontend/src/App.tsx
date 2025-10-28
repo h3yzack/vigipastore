@@ -9,6 +9,7 @@ import logo from "./assets/logo.svg";
 import "./App.css";
 import { Link, Outlet, useNavigate, useLocation } from "react-router";
 import { useAuth } from "@/common/hook/useAuth";
+import ErrorBoundaryWithNotification from "@/common/components/ErrorBoundary";
 
 const { Header, Content, Footer } = Layout;
 
@@ -67,91 +68,94 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col justify-between min-h-screen">
-      <Layout className="grow-0 shadow-lg">
-        <Header 
-          className="flex items-center justify-between px-6"
-          style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #134b7fff 100%)',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-          }}
-        >
-          <Link to="/">
-            <div className="logo flex items-center gap-3 w-64 shrink-0">
-              <img src={logo} alt="Logo" width={50} />
-              <span className="tracking-wide font-sans text-white font-bold text-2xl drop-shadow-sm">
-                VigiPastore
-              </span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Button 
-              shape="circle" 
-              icon={<SettingOutlined />} 
-              onClick={() => navigate("/setting")}
+      <ErrorBoundaryWithNotification>
+        <div className="flex flex-col justify-between min-h-screen">
+          <Layout className="grow-0 shadow-lg">
+            <Header 
+              className="flex items-center justify-between px-6"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: 'white'
+                background: 'linear-gradient(135deg, #134b7fff 0%, #667eea 100%)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
               }}
-              className="hover:bg-white/20 transition-all duration-200"
+            >
+              <Link to="/">
+                <div className="logo flex items-center gap-3 w-64 shrink-0">
+                  <img src={logo} alt="Logo" width={50} />
+                  <span className="tracking-wide font-sans text-white font-bold text-2xl drop-shadow-sm">
+                    VigiPastore
+                  </span>
+                </div>
+              </Link>
+              <div className="flex items-center gap-2">
+                <Button 
+                  shape="circle" 
+                  icon={<SettingOutlined />} 
+                  onClick={() => navigate("/setting")}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'white'
+                  }}
+                  className="hover:bg-white/20 transition-all duration-200"
+                />
+                <Button 
+                  shape="circle" 
+                  icon={<LogoutOutlined />} 
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'white'
+                  }}
+                  className="hover:bg-white/20 transition-all duration-200"
+                />
+              </div>
+            </Header>
+          </Layout>
+          <div
+            style={{ 
+              padding: "0 48px 24px",
+              background: '#f8fafc',
+              minHeight: 'calc(100vh - 115px)'
+            }}
+            className="flex-grow"
+          >
+            <Breadcrumb
+              style={{ 
+                margin: "10px 0",
+                padding: "8px 0"
+              }}
+              items={generateBreadcrumbItems()}
             />
-            <Button 
-              shape="circle" 
-              icon={<LogoutOutlined />} 
-              onClick={handleLogout}
+            <Layout
               style={{
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: 'white'
+                padding: "24px",
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                minHeight: 'calc(100vh - 205px)'
               }}
-              className="hover:bg-white/20 transition-all duration-200"
-            />
+            >
+              <Content>
+                <Outlet />
+              </Content>
+            </Layout>
           </div>
-        </Header>
-      </Layout>
-      <div
-        style={{ 
-          padding: "0 48px 24px",
-          background: '#f8fafc',
-          minHeight: 'calc(100vh - 115px)'
-        }}
-        className="flex-grow"
-      >
-        <Breadcrumb
-          style={{ 
-            margin: "10px 0",
-            padding: "8px 0"
-          }}
-          items={generateBreadcrumbItems()}
-        />
-        <Layout
-          style={{
-            padding: "24px",
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            border: '1px solid rgba(226, 232, 240, 0.8)'
-          }}
-        >
-          <Content style={{ minHeight: 280 }}>
-            <Outlet />
-          </Content>
-        </Layout>
-      </div>
-      <Footer 
-        style={{ 
-          textAlign: "center",
-          background: '#f1f5f9',
-          color: '#64748b',
-          borderTop: '1px solid #e2e8f0',
-          padding: '16px 24px'
-        }}
-      >
-        ©{new Date().getFullYear()} Created by @H3yzack
-      </Footer>
-    </div>
+          <Footer 
+            style={{ 
+              textAlign: "center",
+              background: '#f1f5f9',
+              color: '#64748b',
+              borderTop: '1px solid #e2e8f0',
+              padding: '16px 24px'
+            }}
+          >
+            ©{new Date().getFullYear()} Created by @H3yzack
+          </Footer>
+        </div>
+      </ErrorBoundaryWithNotification>
   );
 }
 

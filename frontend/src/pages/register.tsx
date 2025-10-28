@@ -134,7 +134,7 @@ export default function RegisterPage() {
               placeholder="Password"
               iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               style={{ borderRadius: '8px' }}
-              onChange={handlePasswordChange}
+              onChange={handlePasswordChange} autoComplete='false'
             />
           </Form.Item>
 
@@ -177,7 +177,7 @@ export default function RegisterPage() {
               prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
               placeholder="Confirm Password"
               iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-              style={{ borderRadius: '8px' }}
+              style={{ borderRadius: '8px' }} autoComplete='false'
             />
           </Form.Item>
 

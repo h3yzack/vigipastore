@@ -1,31 +1,32 @@
 import { Button, Modal, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
-import { useState } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 import {
     DeleteOutlined,
     EditOutlined,
-    EyeOutlined,
     ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import type { DataType } from '../utils/shared';
-import PasswordViewer from './password-viewer';
+import type { VaultData } from '@/common/types/vault';
+import { Link } from 'react-router';
 
 interface SecretListProps {
-    data: DataType[];
-    onEdit: (record: DataType) => void;
-    onDelete: (record: DataType) => void;
+    data: VaultData[];
+    onEdit: (record: VaultData) => void;
+    onDelete: (record: VaultData) => void;
+    loading: boolean;
+    onSelect: (record: VaultData | null) => void;
 }
 
-export default function SecretList({ data, onEdit, onDelete }: SecretListProps) {
-    const [passwordViewerVisible, setPasswordViewerVisible] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
+const SecretList = forwardRef(function SecretList({ data, onEdit, onDelete, loading, onSelect }: SecretListProps, ref) {
 
-    const handleDeleteConfirm = (record: DataType) => {
+    const [selectedRecord, setSelectedRecord] = useState<VaultData | null>(null);
+
+    const handleDeleteConfirm = (record: VaultData) => {
         Modal.confirm({
             title: 'Delete Secret',
             icon: <ExclamationCircleOutlined />,
-            content: `Are you sure you want to delete "${record.name}"? This action cannot be undone.`,
+            content: `Are you sure you want to delete "${record.title}"? This action cannot be undone.`,
             okText: 'Delete',
             okType: 'danger',
             cancelText: 'Cancel',
@@ -35,47 +36,34 @@ export default function SecretList({ data, onEdit, onDelete }: SecretListProps) 
         });
     };
 
-    const handleViewPassword = (record: DataType) => {
+    useImperativeHandle(ref, () => ({
+        triggerUnselect() {
+            setSelectedRecord(null);
+        },
+    }));
+
+    const onRow = useCallback((record: VaultData) => ({
+        className: selectedRecord?.id === record.id ? 'bg-blue-100' : '',
+    }), [selectedRecord]);
+
+    const handleViewDetails = (record: VaultData | null) => {
         setSelectedRecord(record);
-        setPasswordViewerVisible(true);
+        // setPasswordViewerVisible(true);
+        onSelect(record);
     };
 
-    const handleClosePasswordViewer = () => {
-        setPasswordViewerVisible(false);
-        setSelectedRecord(null);
-    };
-
-    const columns: TableProps<DataType>['columns'] = [
+    const columns: TableProps<VaultData>['columns'] = [
         {
             title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
+            dataIndex: 'title',
+            key: 'title',
+            render: (text, record) => <Link to={"#"} onClick={() => handleViewDetails(record)}>{text.toUpperCase()}</Link>,
         },
         {
             title: 'Login ID',
             dataIndex: 'loginId',
             key: 'loginId',
-        },
-        {
-            title: 'Description',
-            dataIndex: 'description',
-            key: 'description',
-        },
-        {
-            title: 'Password',
-            key: 'password',
-            render: (_, record) => (
-                <Space size={'small'} >
-                    {'•'.repeat(record.password.length)}
-                    <Button 
-                        shape="circle" 
-                        size="small" 
-                        icon={<EyeOutlined />} 
-                        onClick={() => handleViewPassword(record)}
-                    />
-                </Space>
-            ),
+            width: 200,
         },
         {
             title: 'Tags',
@@ -83,7 +71,7 @@ export default function SecretList({ data, onEdit, onDelete }: SecretListProps) 
             dataIndex: 'tags',
             render: (_, { tags }) => (
                 <>
-                    {tags.map((tag) => {
+                    {tags && tags.map((tag) => {
                         let color = tag.length > 5 ? 'geekblue' : 'green';
                         if (tag === 'loser') {
                             color = 'volcano';
@@ -100,6 +88,8 @@ export default function SecretList({ data, onEdit, onDelete }: SecretListProps) 
         {
             title: 'Action',
             key: 'action',
+            width: 150,
+            className: 'text-center',
             render: (_, record) => (
                 <Space size={'small'} >
                     <Button 
@@ -122,16 +112,12 @@ export default function SecretList({ data, onEdit, onDelete }: SecretListProps) 
 
     return (
         <div>
-            <Table<DataType> columns={columns} dataSource={data} />
-            
-            <PasswordViewer
-                visible={passwordViewerVisible}
-                onClose={handleClosePasswordViewer}
-                secretName={selectedRecord?.name || ''}
-                password={selectedRecord?.password || ''}
-            />
+            <Table<VaultData> columns={columns} 
+            onRow={onRow}
+            rowKey="id"
+            dataSource={data} loading={loading} />
         </div>
     );
-}
+});
 
-
+export default SecretList;

@@ -16,6 +16,7 @@ _login_state_store: dict[str, tuple[bytes, float]] = {}
 _REGISTRATION_STATE_TTL = 300  # seconds (5 minutes)
 _LOGIN_STATE_TTL = 300  # seconds (5 minutes)
 
+# TODO replace this temporary storage with better solution
 def _cleanup_registration_store() -> None:
     now = time.time()
     expired = [k for k, (_, ts) in _registration_state_store.items() if now - ts > _REGISTRATION_STATE_TTL]

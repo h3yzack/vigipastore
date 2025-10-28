@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api.v1 import user_router, auth_router
+from .api.v1 import user_router, auth_router, vault_router
 from .core.config import settings
 
 app = FastAPI(
@@ -29,3 +29,4 @@ async def root():
 
 app.include_router(user_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1") 
+app.include_router(vault_router, prefix="/api/v1")

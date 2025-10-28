@@ -9,13 +9,13 @@ export async function loadLibopaque(): Promise<any> {
             (globalThis as any).libopaque_mod = {
                 preRun: [],
                 postRun: [],
-                // print: console.log,
-                // printErr: console.error,
+                print: () => {},
+                printErr: () => {},
                 // setStatus: console.log,
                 totalDependencies: 0,
-                monitorRunDependencies: function(left: number) {
+                // monitorRunDependencies: function(left: number) {
                     // console.log(`libopaque dependencies: ${left} remaining`);
-                }
+                // }
             };
 
             // Load the script dynamically

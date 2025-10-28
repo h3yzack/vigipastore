@@ -20,6 +20,13 @@ export const appConfig = {
             REGISTER_START: '/auth/register/start',
             REGISTER_FINISH: '/auth/register/finish',
             USER_PROFILE: '/user/:id',
+            VAULT_ADD_UPDATE: "/vault",
+            VAULT_LIST_BY_USER: "/vault/user",
+            VAULT_DELETE_RECORD: "/vault/:id",
+            VAULT_LIST_USER_TAGS: "/vault/tags",
+            VAULT_GET_RECORD_BY_ID: "/vault/user/:id",
+            VAULT_SEARCH_BY_TAG: "/vault/filter/:tag",
+            VAULT_SEARCH: "/vault/search",
         }
     }
 };

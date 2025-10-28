@@ -101,7 +101,7 @@ export default function LoginPage() {
               prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
               placeholder="Password"
               iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-              style={{ borderRadius: '8px' }}
+              style={{ borderRadius: '8px' }} autoComplete='false'
             />
           </Form.Item>
 

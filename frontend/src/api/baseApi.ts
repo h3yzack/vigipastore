@@ -40,8 +40,6 @@ apiClient.interceptors.request.use(
         const url = config.url || "";
         const isPublic = isPublicEndpoint(url);
 
-        console.log(`API Request to ${url} | isPublic: ${isPublic}`);
-
         if (accessToken && config.url && !isPublic) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }

@@ -1,7 +1,7 @@
 import * as sodium from "libsodium-wrappers-sumo";
 
 
-export function strToUrlSafeBase64(u8arr: Uint8Array): string {
+export function toStrUrlSafeBase64(u8arr: Uint8Array): string {
   try {
     return sodium.to_base64(u8arr, sodium.base64_variants.URLSAFE_NO_PADDING);
   } catch (error) {

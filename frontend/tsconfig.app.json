@@ -27,11 +27,11 @@
     "baseUrl": ".",                          
     "paths": {                               
       "@/*": ["src/*"],
-      "@api/*": ["src/api/*"],
-      "@common/*": ["src/common/*"],
-      "@features/*": ["src/features/*"],
-      "@libs/*": ["src/libs/*"],
-      "@components/*": ["src/components/*"]
+      "@/api/*": ["src/api/*"],
+      "@/common/*": ["src/common/*"],
+      "@/features/*": ["src/features/*"],
+      "@/libs/*": ["src/libs/*"],
+      "@/components/*": ["src/components/*"]
     }
   },
   "include": ["src"]

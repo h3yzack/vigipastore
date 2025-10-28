@@ -1,6 +1,6 @@
 import * as api from "@/api/authApi";
 import type { LoginFormData, LoginInfo, LoginStartRequest, RegisterFormData } from "@/common/types/userInfo";
-import { fromSafeUrlStrToBase64, strToUrlSafeBase64 } from "@/common/utils/appUtils";
+import { fromSafeUrlStrToBase64, toStrUrlSafeBase64 } from "@/common/utils/appUtils";
 import {
     clearMemory,
     clientFinishLogin,
@@ -18,9 +18,6 @@ export async function register(formData: RegisterFormData) {
 
         const { registrationRequest, clientRegistrationState } = await clientStartRegistration(formData.password);
 
-        console.log("register - registrationRequest", { registrationRequest, clientRegistrationState });
-        console.log("register - clientRegistrationState", { clientRegistrationState });
-
         if (!registrationRequest || !clientRegistrationState) {
             return false;
         }
@@ -30,22 +27,15 @@ export async function register(formData: RegisterFormData) {
             registrationRequest: registrationRequest,
         });
 
-        console.log("serverResp: ", registrationResponse);
-
         // finish registration
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { registrationRecord, exportKey } = await clientFinishRegistration(
+        const { registrationRecord } = await clientFinishRegistration(
             formData.email,
-            formData.password,
             clientRegistrationState,
             registrationResponse
         );
 
-        console.log("register - clientRegistrationFinishResult", registrationRecord);
-
         const derivedVaultKeys = await deriveVaultKeys(formData.email, formData.password);
-
-        console.log("register - derived keys", derivedVaultKeys);
 
         // await clearMemory(derivedVaultKeys.masterKey, derivedVaultKeys.vaultKey);
 
@@ -54,13 +44,11 @@ export async function register(formData: RegisterFormData) {
                 fullName: formData.fullName,
                 email: formData.email,
             },
-            masterKeySalt: strToUrlSafeBase64(derivedVaultKeys.masterKeySalt!),
-            encryptedVaultKey: strToUrlSafeBase64(derivedVaultKeys.vaultKeyEncrypted!),
-            vaultKeyNonce: strToUrlSafeBase64(derivedVaultKeys.vaultKeyNonce!),
+            masterKeySalt: toStrUrlSafeBase64(derivedVaultKeys.masterKeySalt!),
+            encryptedVaultKey: toStrUrlSafeBase64(derivedVaultKeys.vaultKeyEncrypted!),
+            vaultKeyNonce: toStrUrlSafeBase64(derivedVaultKeys.vaultKeyNonce!),
             masterKeyVerifier: registrationRecord,
         };
-
-        console.log("register - final register payload", regiserPayload);
 
         const response = await api.finalizeUserRegister(regiserPayload);
 
@@ -73,7 +61,6 @@ export async function register(formData: RegisterFormData) {
 
 export async function processLogin(formData: LoginFormData): Promise<LoginInfo | boolean> {
     try {
-        console.log("Start login process");
         const { clientLoginState, startLoginRequest } = await clientStartLogin(formData.password);
 
         if (!startLoginRequest || !clientLoginState) {
@@ -87,12 +74,8 @@ export async function processLogin(formData: LoginFormData): Promise<LoginInfo |
         };
         const { loginResponse } = await api.loginStartRequest(loginStartRequest);
 
-        console.log("clientStartLogin result:", loginResponse);
-
         // finish login
         const loginResult = await clientFinishLogin(formData, clientLoginState, loginResponse);
-
-        console.log("processLogin - loginResult", loginResult);
 
         // send to server to verify and get session token
         if (loginResult) {
@@ -100,8 +83,6 @@ export async function processLogin(formData: LoginFormData): Promise<LoginInfo |
                 email: formData.email,
                 finishLoginRequest: loginResult.finishLoginRequest,
             });
-
-            console.log("finalizeUserLogin response:", response);
 
             if (response.status) {
                 // derive master key 

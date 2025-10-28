@@ -46,7 +46,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const setupTokenExpiryManagement = useCallback((token: string) => {
         const exp = getTokenExpiry(token);
-        console.log("Token expiry time (ms): ", exp);
         if (!exp) return;
 
         const now = Date.now();
@@ -86,11 +85,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = useCallback(async (loginData: LoginFormData): Promise<boolean> => {
         try {
-            console.log("Login Data: ", loginData);
             const result: LoginInfo | boolean = await processLogin(loginData);
 
             if (result && typeof result === "object") {
-                console.log("LoginInfo: ", result);
 
                 setAccessToken(result.accessToken);
                 setUserInfo(result.userInfo);

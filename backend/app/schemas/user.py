@@ -9,6 +9,9 @@ class UserInfo(BaseModel):
     full_name: str
     email: EmailStr
 
+    class Config:
+        from_attributes = True
+
 class RegisterStartRequest(BaseModel):
     email: EmailStr = Field(..., example="john.doe@example.com")
     registration_request: bytes

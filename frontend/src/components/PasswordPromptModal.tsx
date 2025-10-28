@@ -1,7 +1,8 @@
 import { useAuth } from "@/common/hook/useAuth";
-import { Form, Input, Modal, notification } from "antd";
+import { Form, Input, Modal } from "antd";
 import { useState } from "react";
 import {WarningOutlined} from "@ant-design/icons"
+import { useAppNotification } from "@/common/hook/useAppNotification";
 
 interface PasswordPromptModalProps {
     timeLeft: number | null;
@@ -19,25 +20,7 @@ export default function PasswordPromptModal({ visible, onSubmit, onCancel, timeL
     const [loading, setLoading] = useState(false);
     const { userEmail } = useAuth();
     const { login } = useAuth();
-    const [api, contextHolder] = notification.useNotification();
-
-    const showSuccessNotification = () => {
-        api.info({
-            message: 'Status',
-            description: "Login success! Your session has been extended.",
-            duration: 3,
-            showProgress: true,
-        });
-    };
-
-    const showErrorNotification = () => {
-        api.error({
-            message: 'Status',
-            description: "Login failed. Please try again.",
-            duration: 2,
-            showProgress: true,
-        });
-    };
+    const { showSuccess, showError } = useAppNotification();
 
     const onReset = () => {
         form.resetFields();
@@ -50,14 +33,14 @@ export default function PasswordPromptModal({ visible, onSubmit, onCancel, timeL
             const loginResult = await login({ email: userEmail!, password });
 
             if (loginResult) {
-                showSuccessNotification();
+                showSuccess({message: "Authentication successful! Your session has been extended."});
                 form.resetFields();
                 onSubmit();
             } else {
-                showErrorNotification();
+                showError({message: "Authentication failed. Please try again."});
             }
         } catch {
-            showErrorNotification();
+            showError({message: "Authentication failed. Please try again."});
         } finally {
             setLoading(false);
         }
@@ -65,7 +48,6 @@ export default function PasswordPromptModal({ visible, onSubmit, onCancel, timeL
 
     return (
         <>
-        {contextHolder}
         <Modal
             open={visible}
             title="Re-Login"
@@ -95,7 +77,7 @@ export default function PasswordPromptModal({ visible, onSubmit, onCancel, timeL
                   </p>
                 </div>
                 <Form.Item className="form-mb-10" label="Please re-enter your password to continue" name="password" rules={[{ required: true, message: "Please enter password" }]}>
-                    <Input.Password placeholder="Password" />
+                    <Input.Password placeholder="Password" autoComplete='off'/>
                 </Form.Item>
             </Form>
         </Modal>

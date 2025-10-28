@@ -1,7 +1,8 @@
 
 from datetime import datetime
+from typing import List, Optional
 import uuid
-from sqlalchemy import ForeignKey, Integer, LargeBinary, String, func, DateTime
+from sqlalchemy import ARRAY, ForeignKey, Integer, LargeBinary, String, func, DateTime
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from .user import User
@@ -17,21 +18,21 @@ class Vault(Base):
 
     title: Mapped[str] = mapped_column(String, index=True, nullable=False)
 
+    login_id: Mapped[str] = mapped_column(String, nullable=False)
+
     notes: Mapped[str] = mapped_column(String, nullable=True)
 
     website: Mapped[str] = mapped_column(String, nullable=True)
 
-    login_id_ciphertext: Mapped[bytes] = mapped_column(
-        LargeBinary,
-        nullable=False
-    )
+    login_id_ciphertext: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 
-    password_ciphertext: Mapped[bytes] = mapped_column(
-        LargeBinary, nullable=False)  # Encrypted password data
+    password_ciphertext: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)  # Encrypted password data
 
     # Initialization Vector
-    encryption_iv: Mapped[bytes] = mapped_column(LargeBinary(length=16), nullable=False)
+    encryption_iv: Mapped[bytes] = mapped_column(LargeBinary(length=24), nullable=False)
 
+    tags: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(), nullable=False
     )
@@ -41,4 +42,4 @@ class Vault(Base):
     )
 
     # Many-to-one relationship with User
-    user: Mapped["User"] = relationship(back_populates="vault")
+    user: Mapped["User"] = relationship("User", lazy="selectin")
