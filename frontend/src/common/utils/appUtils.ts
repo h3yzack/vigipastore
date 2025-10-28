@@ -32,3 +32,14 @@ export function fromBase64Str(b64: string): Uint8Array {
     throw new Error(`Failed to convert from Base64: ${error}`);
   }
 }
+
+export const getInitials = (text: string): string => {
+    if (!text) return '';
+    const words = text.split(' ').filter(word => word.length > 0);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    } else if (words.length >= 2) {
+      return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+    }
+    return '';
+  };

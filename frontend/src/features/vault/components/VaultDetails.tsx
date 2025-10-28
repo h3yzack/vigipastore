@@ -3,6 +3,7 @@ import { Button, Card, Descriptions, message, Skeleton, Tag, type DescriptionsPr
 import { AppstoreOutlined, CloseOutlined, CopyOutlined, EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { useVaultService } from "../hook/useVaultService";
+import { tagColors } from "@/common/types/app";
 
 const VaultDetails = forwardRef(({ recordId, onClose }: { recordId: string, onClose: () => void }, ref) => {
 
@@ -108,14 +109,11 @@ const VaultDetails = forwardRef(({ recordId, onClose }: { recordId: string, onCl
                children: (
                      <> 
                         {selectedRecord.tags && selectedRecord.tags.map((tag) => {
-                              let color = tag.length > 5 ? 'geekblue' : 'green';
-                              if (tag === 'loser') {
-                                 color = 'volcano';
-                              }
+                              const index = tag.charCodeAt(0) % tagColors.length;
                               return (
-                                 <Tag color={color} key={tag}>
-                                    {tag.toUpperCase()}
-                                 </Tag>
+                                    <Tag color={tagColors[index]} key={tag}>
+                                       {tag.toUpperCase()}
+                                    </Tag>
                               );
                         })}
                      </>

@@ -146,6 +146,25 @@ export async function getEncryptedVaultKey(emailAddress: string, masterKey: Uint
     }
 }
 
+export async function encryptedVaultKey(emailAddress: string, masterKey: Uint8Array, vaultKey: Uint8Array, vaultKeyNonce: Uint8Array): Promise<EncryptedVaultKeys> {
+    try {
+        await sodium.ready;
+
+        const vaultKeyEncrypted = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
+            vaultKey, // message
+            emailAddress, // additional data
+            null, // secret nonce (unused)
+            vaultKeyNonce,
+            masterKey
+        );
+
+        return { vaultKeyEncrypted, vaultKeyNonce };
+    } catch (error) {
+        console.error("getEncryptedVaultKey - error generating vault key:", error);
+        throw error;
+    }
+}
+
 export async function getDecryptedVaultKey(
     emailAddress: string,
     masterKey: Uint8Array,

@@ -5,6 +5,18 @@ export interface UserInfo {
   twoFaStatus?: boolean;
 }
 
+export interface UserAccountInfo {
+  id: string;
+  email: string;
+  fullName: string;
+  twoFaStatus: boolean;
+  masterKeySalt: string;
+  encryptedVaultKey: string;
+  vaultKeyNonce: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface RegisterFormData {
   fullName: string;
   email: string;
@@ -66,4 +78,43 @@ export interface LoginInfo {
   accessToken: string;
   vaultKey: Uint8Array;
   userInfo: UserInfo;
+}
+
+export interface ProfileInfoRequest {
+  fullName: string;
+  id: string;
+  twoFaStatus: boolean;
+}
+
+export interface ProfileInfoResponse {
+  userInfo: UserInfo;
+  status: boolean;
+}
+
+export interface MasterPasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ResetMasterPasswordStartRequest {
+    email: string;
+    registrationRequest: string;
+}
+
+export interface ResetMasterPasswordStartResponse {
+    registrationResponse: string;
+}
+
+export interface ResetMasterPasswordFinishRequest {
+    id: string;
+    masterKeySalt: string;
+    encryptedVaultKey: string;
+    vaultKeyNonce: string;
+    masterKeyVerifier: string;
+}
+
+export interface ResetMasterPasswordFinishResponse {
+    userInfo?: UserInfo;
+    status: boolean;
 }

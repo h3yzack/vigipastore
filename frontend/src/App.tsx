@@ -74,20 +74,31 @@ function App() {
             <Header 
               className="flex items-center justify-between px-6"
               style={{
-                background: 'linear-gradient(135deg, #134b7fff 0%, #667eea 100%)',
+                background: 'linear-gradient(135deg, #134b7fff 0%, rgb(37 110 176) 100%)',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
               }}
             >
               <Link to="/">
                 <div className="logo flex items-center gap-3 w-64 shrink-0">
-                  <img src={logo} alt="Logo" width={50} />
+                  <img src={logo} alt="Logo" width={50} className="hover:scale-110 hover:shadow-lg transition-all duration-300 ease-in-out"/>
                   <span className="tracking-wide font-sans text-white font-bold text-2xl drop-shadow-sm">
                     VigiPastore
                   </span>
                 </div>
               </Link>
               <div className="flex items-center gap-2">
+                {/* <Button 
+                  shape="circle" 
+                  icon={<SettingOutlined />} 
+                  onClick={() => navigate("/setting-dummy")}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'white'
+                  }}
+                  className="hover:bg-white/20 transition-all duration-200"
+                /> */}
                 <Button 
                   shape="circle" 
                   icon={<SettingOutlined />} 
@@ -97,7 +108,7 @@ function App() {
                     border: '1px solid rgba(255,255,255,0.2)',
                     color: 'white'
                   }}
-                  className="hover:bg-white/20 transition-all duration-200"
+                  className="hover:bg-white/30 hover:scale-110 hover:shadow-lg transition-all duration-300 ease-in-out"
                 />
                 <Button 
                   shape="circle" 
@@ -108,7 +119,7 @@ function App() {
                     border: '1px solid rgba(255,255,255,0.2)',
                     color: 'white'
                   }}
-                  className="hover:bg-white/20 transition-all duration-200"
+                  className="hover:bg-white/30 hover:scale-110 hover:shadow-lg transition-all duration-300 ease-in-out"
                 />
               </div>
             </Header>
@@ -152,7 +163,7 @@ function App() {
               padding: '16px 24px'
             }}
           >
-            ©{new Date().getFullYear()} Created by @H3yzack
+            ©{2025} Created by <a href="https://github.com/h3yzack" target="_blank" rel="noopener noreferrer">@H3yzack</a>
           </Footer>
         </div>
       </ErrorBoundaryWithNotification>

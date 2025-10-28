@@ -1,8 +1,8 @@
-from __future__ import annotations
-from typing import Optional
-from pydantic import BaseModel, EmailStr, Field, field_validator
+import datetime
+from typing import Annotated, Optional
+from pydantic import BaseModel, EmailStr, Field, PlainSerializer, field_validator
 
-from ..core.common import base64url_decode, base64url_encode
+from ..core.common import base64url_decode, base64url_encode, serialize_datetime
 
 class UserInfo(BaseModel):
     id: Optional[str] = None
@@ -153,3 +153,55 @@ class UserCreateInternal(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserProfile(BaseModel):
+    id: str = Field(..., example=1)
+    full_name: str = Field(..., example="John Doe")
+    two_fa_enabled: bool = Field(..., example=False)
+
+class UserRecordResponse(BaseModel):
+    status: bool
+    user: Optional[UserPublic] = None
+    message: Optional[str] = None
+
+class UserRecord(UserPublicBase):
+    master_key_salt: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+    # master_key_verifier: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+    vault_key_encrypted: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+    vault_key_nonce: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+
+    created_at: Annotated[
+        datetime.datetime,
+        PlainSerializer(serialize_datetime, return_type=str)
+    ]
+    updated_at: Annotated[
+        datetime.datetime,
+        PlainSerializer(serialize_datetime, return_type=str)
+    ]
+
+class ResetStartRequest(RegisterStartRequest):
+    pass
+
+class ResetStartResponse(RegistrationStartResponse):
+    pass
+class ResetFinishRequest(BaseModel):
+    user_id: str
+    master_key_salt: bytes
+    encrypted_vault_key: bytes
+    vault_key_nonce: bytes
+    master_key_verifier: bytes
+
+    @field_validator(
+            "master_key_salt",
+            "encrypted_vault_key",
+            "vault_key_nonce",
+            "master_key_verifier",
+            mode="before",
+            )
+    def _decode_b64url(cls, v):
+        if isinstance(v, str):
+            return base64url_decode(v)
+        raise TypeError("expected bytes or base64 string for binary field")
+class ResetFinishResponse(BaseModel):
+    user_info: Optional[UserInfo] = None
+    status: bool

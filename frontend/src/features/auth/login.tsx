@@ -2,7 +2,7 @@ import { Form, Input, Button, Card, Typography, Divider, message } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
-import logo from '../assets/logo.svg';
+import logo from "@/assets/logo.svg";
 import type { LoginFormData } from '@/common/types/userInfo';
 import { useAuth } from '@/common/hook/useAuth';
 
@@ -21,7 +21,7 @@ export default function LoginPage() {
       const loginResult = await login(formData);
 
       if (loginResult) {
-        message.success('Login success!');
+        message.success('Welcome back!');
         navigate('/');
       } else {
         message.error('Login failed. Please try again.');
@@ -36,7 +36,7 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #134b7fff 100%)',
+      background: 'linear-gradient(135deg, #134b7fff 0%, rgb(37 110 176) 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

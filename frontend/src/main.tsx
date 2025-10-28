@@ -4,13 +4,13 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import HomePage from "@/features/vault/Home.tsx";
 import AboutPage from './pages/about.tsx';
-import LoginPage from './pages/login.tsx';
-import RegisterPage from './pages/register.tsx';
+import LoginPage from './features/auth/login.tsx';
+import RegisterPage from './features/auth/register.tsx';
 import App from './App.tsx';
-import SettingPage from './pages/setting.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { NotificationProvider } from './common/components/NotificationProvider.tsx';
+import SettingPage from '@/features/setting/SettingPage';
 
 const router = createBrowserRouter([
   // Public routes
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
       {
         path: "setting",
         element: <SettingPage />,
-      },
+      }
     ]
   }
 ]);

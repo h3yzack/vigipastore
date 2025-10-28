@@ -11,6 +11,7 @@ export type PasswordStatus = 'normal' | 'success' | 'exception';
 
 export interface AuthContextType {
   userInfo: UserInfo | null;
+  setUserInfo: (info: UserInfo | null) => void;
   login: (loginData: LoginFormData) => Promise<boolean>;
   logout: () => void;
 
@@ -28,3 +29,6 @@ export interface AuthContextType {
   setUserEmail: (email: string) => void;
   userEmail: string | null;
 }
+
+export const avatarColors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#87d068', '#108ee9', '#2db7f5', '#f50'];
+export const tagColors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "geekblue", "purple"];

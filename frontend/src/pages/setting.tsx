@@ -51,7 +51,7 @@ interface GeneralFormData {
   compactMode: boolean;
 }
 
-export default function SettingPage() {
+export default function SettingPageDummy() {
   const [masterPasswordForm] = Form.useForm();
   const [accountForm] = Form.useForm();
   const [generalForm] = Form.useForm();

@@ -1,3 +1,4 @@
+from datetime import datetime
 import traceback
 from typing import Optional
 from fastapi import HTTPException, status
@@ -7,8 +8,8 @@ import time
 
 from ..core.auth_jwt import create_access_token
 from ..core.common import base64url_decode, base64url_encode
-from ..schemas.user import AuthResponse, LoginFinishRequest, LoginStartRequest, LoginStartResponse, RegisterFinishRequest, RegisterFinishResponse, RegisterStartRequest, RegistrationStartResponse, UserPublic, UserRegister
-from ..crud.user_crud import get_user_by_email, create_user
+from ..schemas.user import AuthResponse, LoginFinishRequest, LoginStartRequest, LoginStartResponse, RegisterFinishRequest, RegisterFinishResponse, RegisterStartRequest, RegistrationStartResponse, ResetFinishRequest, ResetFinishResponse, UserPublic, UserRecord, UserRecordResponse, UserRegister
+from ..crud.user_crud import get_user_by_email, create_user, get_user_by_id, update_user, update_user_profile
 from ..core import settings
 
 _registration_state_store: dict[str, tuple[bytes, float]] = {}
@@ -46,7 +47,7 @@ def pop_login_secS_for_email(email: str) -> Optional[bytes]:
     return entry[0] if entry is not None else None
 
 
-def process_user_register_start(request: RegisterStartRequest) -> RegistrationStartResponse:
+def process_user_register_or_reset_start(request: RegisterStartRequest) -> RegistrationStartResponse:
     print("Processing user registration start...")
     print("Received registration request:", request)
 
@@ -175,9 +176,94 @@ async def process_user_login_finish(request: LoginFinishRequest, db: AsyncSessio
             user=UserPublic.model_validate(user)
         )
 
+        # update login timestamp
+        user.last_login_at = datetime.now()
+        await db.commit()
+        await db.refresh(user)
+
         return auth_response
 
     except Exception as e:
         print("Error processing user login finish:", e)
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Failed to process user login finish")
+
+    
+async def process_user_update_profile (
+        user_id: str,
+        profile_data: UserPublic,
+        db: AsyncSession
+    ) -> UserRecordResponse:
+        
+        user = await get_user_by_id(db, user_id)
+        if not user or user.id != user_id:
+            return UserRecordResponse(
+                status=False,
+                user=None,
+                message="User not found or unauthorized"
+            )
+        
+        try:
+            updated_user = await update_user_profile(db, profile_data)
+            return UserRecordResponse(
+                status=True,
+                user=UserPublic.model_validate(updated_user),
+                message="User profile updated successfully"
+            )
+        except Exception as e:
+            print("Error logging user profile update:", e)
+            return UserRecordResponse(
+                status=False,
+                user=None,
+                message=str(e)
+            )
+
+async def process_get_user_record(
+        user_id: str,
+        authenticated_user_id: str,
+        db: AsyncSession
+    ) -> UserRecord:
+        
+        user = await get_user_by_id(db, user_id)
+        if not user or user.id != authenticated_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
+        return UserRecord.model_validate(user)
+
+async def process_reset_master_pwd_finish(request: ResetFinishRequest, db: AsyncSession) -> ResetFinishResponse:
+
+    print("Processing user reset master pwd finish...")
+
+    #  check user existence
+    user = await get_user_by_id(db, request.user_id)
+    if not user:
+        print("User not found:", request.user_id)
+        return ResetFinishResponse(status=False)
+
+    secS = pop_secS_for_email(user.email)
+
+    # length of secS
+    print("Length of retrieved secS:", len(secS) if secS else "None")
+
+    rec1 = opaque.StoreUserRecord(
+        secS,
+        request.master_key_verifier,
+    )
+
+    print("Created user record of length:", len(rec1))
+
+    user.master_key_salt = request.master_key_salt
+    user.master_key_verifier = rec1
+    user.vault_key_encrypted = request.encrypted_vault_key
+    user.vault_key_nonce = request.vault_key_nonce
+
+
+    updated_user = await update_user(db, user)
+
+    if not updated_user:
+        print("Failed to update user.")
+        return ResetFinishResponse(status=False)
+
+    print("Successfully updated user with ID:", updated_user.id)
+
+    return ResetFinishResponse(status=True, user_info=UserPublic.model_validate(updated_user))

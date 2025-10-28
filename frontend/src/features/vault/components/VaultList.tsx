@@ -1,4 +1,4 @@
-import { Button, Modal, Space, Table, Tag } from 'antd';
+import { Avatar, Button, Modal, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
@@ -9,6 +9,8 @@ import {
 } from "@ant-design/icons";
 import type { VaultData } from '@/common/types/vault';
 import { Link } from 'react-router';
+import { getInitials } from '@/common/utils/appUtils';
+import { avatarColors, tagColors } from '@/common/types/app';
 
 interface SecretListProps {
     data: VaultData[];
@@ -57,7 +59,16 @@ const SecretList = forwardRef(function SecretList({ data, onEdit, onDelete, load
             title: 'Name',
             dataIndex: 'title',
             key: 'title',
-            render: (text, record) => <Link to={"#"} onClick={() => handleViewDetails(record)}>{text.toUpperCase()}</Link>,
+            render: (text, record) =>{
+                const index = record!.id!.charCodeAt(0) % avatarColors.length;
+                return (
+                    <>  
+                        <Avatar style={{ backgroundColor: avatarColors[index], verticalAlign: 'middle' }} size="large" gap={2}>
+                            {getInitials(text)}
+                        </Avatar>
+                        <Link className="ps-2"  to={"#"} onClick={() => handleViewDetails(record)}>{text.toUpperCase()}</Link>
+                    </>
+                )},
         },
         {
             title: 'Login ID',
@@ -72,12 +83,9 @@ const SecretList = forwardRef(function SecretList({ data, onEdit, onDelete, load
             render: (_, { tags }) => (
                 <>
                     {tags && tags.map((tag) => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        if (tag === 'loser') {
-                            color = 'volcano';
-                        }
+                        const index = tag.charCodeAt(0) % tagColors.length;
                         return (
-                            <Tag color={color} key={tag}>
+                            <Tag color={tagColors[index]} key={tag}>
                                 {tag.toUpperCase()}
                             </Tag>
                         );

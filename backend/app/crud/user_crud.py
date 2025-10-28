@@ -2,7 +2,7 @@ from sqlalchemy import select
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.user import User
-from ..schemas.user import UserRegister
+from ..schemas.user import UserInfo, UserPublic, UserRegister
 
 # --- CREATE ---
 async def create_user(session: AsyncSession, user_data: UserRegister) -> User:
@@ -63,3 +63,36 @@ async def delete_user(session: AsyncSession, user_id: int) -> bool:
         await session.commit()
         return True
     return False
+
+
+async def update_user_profile(session: AsyncSession, user_info: UserPublic) -> Optional[User]:
+    """Updates a user's profile information."""
+    user = await session.get(User, user_info.id)
+    if user:
+        # user.email = user_info.email # cannot update email once registered
+        user.full_name = user_info.full_name
+        user.two_fa_enabled = user_info.two_fa_enabled
+
+        await session.commit()
+        await session.refresh(user)
+
+        print(f"Updated user: {user}")
+    return user
+
+async def update_user(session: AsyncSession, user: User) -> Optional[User]:
+    """Updates a user's information."""
+    existing_user = await session.get(User, user.id)
+    if existing_user:
+        existing_user.full_name = user.full_name
+        existing_user.email = user.email
+        existing_user.master_key_salt = user.master_key_salt
+        existing_user.master_key_verifier = user.master_key_verifier
+        existing_user.vault_key_encrypted = user.vault_key_encrypted
+        existing_user.vault_key_nonce = user.vault_key_nonce
+        existing_user.two_fa_enabled = user.two_fa_enabled
+
+        await session.commit()
+        await session.refresh(existing_user)
+
+        print(f"Updated user: {existing_user}")
+    return existing_user

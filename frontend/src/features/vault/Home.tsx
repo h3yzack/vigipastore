@@ -1,6 +1,6 @@
 import { Button, Input, Select, type InputRef } from "antd";
 
-import { PlusOutlined, ReloadOutlined, SearchOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { FileProtectOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import SecretList from "./components/VaultList";
 import AddSecret from "@/features/vault/components/VaultForm";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -118,7 +118,7 @@ export default function HomePage() {
                         <div className="flex items-center gap-4">
                             <h1 className="text-xl font-bold">
                                 <span className="flex items-center gap-2">
-                                    <UnorderedListOutlined />
+                                    <FileProtectOutlined />
                                     Vault Records
                                 </span>
                             </h1>

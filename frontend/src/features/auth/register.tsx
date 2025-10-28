@@ -2,7 +2,7 @@ import { Form, Input, Button, Card, Typography, Divider, Progress, message } fro
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
-import logo from '../assets/logo.svg';
+import logo from "@/assets/logo.svg";
 import type { PasswordStrength } from '@/common/types/app';
 import { calculatePasswordStrength } from '@/common/utils/validationUtils';
 import type { RegisterFormData } from '@/common/types/userInfo';
@@ -51,7 +51,7 @@ export default function RegisterPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #134b7fff 100%)',
+      background: 'linear-gradient(135deg, #134b7fff 0%, rgb(37 110 176) 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -83,7 +83,7 @@ export default function RegisterPage() {
             Create Account
           </Title>
           <Text type="secondary">
-            Join VigiPastore and secure your digital life
+            Register with VigiPastore and keep your password private
           </Text>
         </div>
 
@@ -190,7 +190,7 @@ export default function RegisterPage() {
           }}>
             <Text style={{ fontSize: '12px', color: '#d46b08' }}>
               ⚠️ <strong>Important:</strong> Your master password cannot be recovered. 
-              Please store it safely as we use zero-knowledge encryption.
+              Please store it safely as VigiPastore uses zero-knowledge encryption.
             </Text>
           </div>
 

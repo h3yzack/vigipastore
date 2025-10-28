@@ -52,6 +52,7 @@ export default function PasswordPromptModal({ visible, onSubmit, onCancel, timeL
             open={visible}
             title="Re-Login"
             okText="Send"
+            maskClosable={false}
             cancelText="Cancel"
             onCancel={onReset}
             onOk={() => {

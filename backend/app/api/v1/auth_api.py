@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from ...database import get_db
-from ...services.user_service import process_user_login_finish, process_user_login_start, process_user_register_finish, process_user_register_start
+from ...services.user_service import process_user_login_finish, process_user_login_start, process_user_register_finish, process_user_register_or_reset_start
 from ...schemas.user import AuthResponse, LoginFinishRequest, LoginStartRequest, LoginStartResponse, RegisterFinishRequest, RegisterFinishResponse, RegisterStartRequest, RegistrationStartResponse
 
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 async def register_start(request: RegisterStartRequest):
     print("Received registration start request:", request)
 
-    response = process_user_register_start(request)
+    response = process_user_register_or_reset_start(request)
 
     return response
 

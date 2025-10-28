@@ -1,9 +1,9 @@
-from .user_router import router as user_router
+from .user_api import router as user_router
 from .auth_api import router as auth_router
 from .vault_api import router as vault_router
 
 __all__ = [
-    "user_router",
+    "user_api",
     "auth_router",
     "vault_router"
 ]
