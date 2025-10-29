@@ -24,6 +24,8 @@ class Settings(BaseSettings):
 
     SERVER_KEY: str
     SERVER_IDENTITY: str = "VigiPastore"
+
+    LOG_LEVEL: str = "INFO"
     
     # Pydantic configuration to load variables from a .env file
     # In production (AWS), these would be loaded from environment variables
@@ -48,10 +50,13 @@ class ColoredFormatter(logging.Formatter):
             record.levelname = colored_levelname
         return super().format(record)
 
-def setup_logging(level=logging.INFO, format_str='%(levelname)s: \t %(asctime)s - %(name)s - %(message)s'):
+def setup_logging(level_str='INFO', format_str='%(levelname)s: \t %(asctime)s - %(name)s - %(message)s'):
     """Reusable function to set up colored logging."""
+    level_str = settings.LOG_LEVEL.upper()  # Ensure uppercase
+    level_int = getattr(logging, level_str, logging.INFO)
+
     logger = logging.getLogger()
-    logger.setLevel(level)
+    logger.setLevel(level_int)
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(ColoredFormatter(format_str))
     logger.addHandler(handler)

@@ -5,7 +5,7 @@ from .api.v1 import user_router, auth_router, vault_router
 from .core.config import settings, setup_logging
 
 # Configure logging to show DEBUG and above
-setup_logging()
+setup_logging(level_str=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(

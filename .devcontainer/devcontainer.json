@@ -1,60 +1,57 @@
 {
-    "name": "My Pass Vault",
+    "name": "VigiPastore Dev Container",
     "dockerFile": "Dockerfile",
     "context": "..",
-    "runArgs": ["--init", "--network=host"],
-
+    "runArgs": [
+        "--init",
+        "--network=development"
+    ],
+    "remoteUser": "vscode",
     "remoteEnv": {
         "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
     },
-
     "containerEnv": {
-        "JAVA_HOME": "/usr/lib/jvm/java-17-openjdk-arm64"
     },
-
     "customizations": {
         "vscode": {
             "settings": {
                 "terminal.integrated.shell.linux": "/bin/bash",
-                "java.jdt.ls.java.home": "/usr/lib/jvm/java-17-openjdk-arm64"
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "files.eol": "\n"
             },
             "extensions": [
-                "redhat.java",
-                "vscjava.vscode-java-pack",
-                "vscjava.vscode-gradle",
-                "vscjava.vscode-java-debug",
-                "vscjava.vscode-java-test",
-                "dbaeumer.vscode-eslint",
-                "redhat.vscode-yaml",
-                "vmware.vscode-boot-dev-pack",
-                "vscjava.vscode-lombok",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
                 "esbenp.prettier-vscode",
-                "sonarsource.sonarlint-vscode",
-                "gruntfuggly.todo-tree",
+                "dbaeumer.vscode-eslint",
+                "ms-azuretools.vscode-docker",
+                "christian-kohler.path-intellisense",
+                "eamodio.gitlens",
                 "mutantdino.resourcemonitor",
-                "github.vscode-github-actions"
-                                // "kabirsarkar.spring-boot-gradle-extension-pack",
+                "mhutchie.git-graph"
             ]
         }
     },
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/node:1": { "version": "20" },
-        "ghcr.io/ebaskoro/devcontainer-features/sdkman:1": {
-            "candidate": "gradle"
+        "ghcr.io/devcontainers/features/sshd:1": {
+            "forwardAgent": true
         },
-        "ghcr.io/devcontainers/features/terraform:1": {},
-        "ghcr.io/devcontainers/features/aws-cli:1": {}
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20"
+        }
     },
-
     "mounts": [
-        "source=${localWorkspaceFolder},target=/app/${localWorkspaceFolderBasename},type=bind,consistency=cached"
+        "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+        "source=vp-node-modules,target=/workspace/frontend/node_modules,type=volume"
     ],
-
-    // "postCreateCommand": "bash -ic 'sdk install springboot 3.5.5'",
-    // "postCreateCommand": "npm install --prefix frontend/react-app",
-
-    "forwardPorts": [3000, 8080, 8081, 8082, 27017],
-
-    "remoteUser": "vscode"
+    "forwardPorts": [
+        5173,
+        8000
+    ],
+    "workspaceFolder": "/workspace",
+    "postCreateCommand": "sudo chown -R vscode:vscode /workspace/frontend/node_modules"
 }
