@@ -16,5 +16,14 @@ export default defineConfig({
       '@/libs/*': path.resolve(__dirname, './src/libs/*'),
       '@/components/*': path.resolve(__dirname, './src/components/*')
     },
-  }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

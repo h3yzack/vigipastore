@@ -11,6 +11,9 @@ from ..core.common import base64url_decode, base64url_encode
 from ..schemas.user import AuthResponse, LoginFinishRequest, LoginStartRequest, LoginStartResponse, RegisterFinishRequest, RegisterFinishResponse, RegisterStartRequest, RegistrationStartResponse, ResetFinishRequest, ResetFinishResponse, UserPublic, UserRecord, UserRecordResponse, UserRegister
 from ..crud.user_crud import get_user_by_email, create_user, get_user_by_id, update_user, update_user_profile
 from ..core import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 _registration_state_store: dict[str, tuple[bytes, float]] = {}
 _login_state_store: dict[str, tuple[bytes, float]] = {}
@@ -48,26 +51,21 @@ def pop_login_secS_for_email(email: str) -> Optional[bytes]:
 
 
 def process_user_register_or_reset_start(request: RegisterStartRequest) -> RegistrationStartResponse:
-    print("Processing user registration start...")
-    print("Received registration request:", request)
+    logger.debug("Processing user registration start...")
 
     server_key = base64url_decode(settings.SERVER_KEY)
-
-    print("length of server key:", len(server_key))
 
     secS, pub = opaque.CreateRegistrationResponse(request.registration_request, server_key)
 
     # length of secS
-    print("Length of secS:", len(secS), "Expected:", opaque.OPAQUE_REGISTER_SECRET_LEN)
+    logger.debug("Length of secS: %d, Expected: %d", len(secS), opaque.OPAQUE_REGISTER_SECRET_LEN)
 
     try:
         store_secS_for_email(request.email, secS)
     except Exception:
         # don't expose internal errors to client; log and continue
-        print("Warning: failed to store secS in temporary store for", request.email)
+        logger.error("Warning: failed to store secS in temporary store for %s", request.email)
     
-    #  calculate length of pub
-    print("Length of public key:", len(pub))
 
     return RegistrationStartResponse(
         registration_response=base64url_encode(pub)
@@ -75,26 +73,20 @@ def process_user_register_or_reset_start(request: RegisterStartRequest) -> Regis
 
 async def process_user_register_finish(request: RegisterFinishRequest, db: AsyncSession) -> RegisterFinishResponse:
 
-    print("Processing user registration finish...", len(request.master_key_verifier))
+    logger.debug("Processing user registration finish...")
 
     #  check user existence
     existing = await get_user_by_email(db, request.user_info.email)
     if existing:
-        print("User already exists with email:", request.user_info.email)
+        logger.warning("User already exists with email: %s", request.user_info.email)
         return RegisterFinishResponse(status=False)
 
     secS = pop_secS_for_email(request.user_info.email)
-
-    # length of secS
-    print("Length of retrieved secS:", len(secS) if secS else "None")
 
     rec1 = opaque.StoreUserRecord(
         secS,
         request.master_key_verifier,
     )
-
-    print("Created user record of length:", len(rec1))
-
 
     # Create new user
     user_data = UserRegister(
@@ -112,27 +104,21 @@ async def process_user_register_finish(request: RegisterFinishRequest, db: Async
         print("Failed to create new user.")
         return RegisterFinishResponse(status=False)
 
-    print("Successfully created new user with ID:", new_user.id)
+    logger.info("Successfully created new user with ID: %s", new_user.id)
 
     return RegisterFinishResponse(status=True)
 
 async def process_user_login_start(request: LoginStartRequest, db: AsyncSession):
     try:
-        print("processing user login start...")
+        logger.debug("Processing user login start...")
         user = await get_user_by_email(db, request.email)
         if not user:
-            print("No user found with email:", request.email)
+            logger.warning("No user found with email: %s", request.email)
             raise HTTPException(status_code=400, detail="Invalid credentials")
         
 
-        ids = opaque.Ids(request.email, settings.SERVER_ID)
-        ctx = settings.SERVER_ID + "-" + settings.APP_VERSION
-        
-        print("master verifier length :", len(user.master_key_verifier))
-        print("OPAQUE_USER_RECORD_LEN: ", opaque.OPAQUE_USER_RECORD_LEN)
-        print("OPAQUE_USER_SESSION_PUBLIC_LEN: ", opaque.OPAQUE_USER_SESSION_PUBLIC_LEN)
-
-        print("Length of login request:", len(request.login_request))
+        ids = opaque.Ids(request.email, settings.SERVER_IDENTITY)
+        ctx = settings.SERVER_IDENTITY + "-" + settings.APP_VERSION
 
         resp, sk, secS = opaque.CreateCredentialResponse(request.login_request, user.master_key_verifier, ids, ctx )
 
@@ -140,24 +126,24 @@ async def process_user_login_start(request: LoginStartRequest, db: AsyncSession)
             store_login_secS_for_email(request.email, secS)
         except Exception:
             # don't expose internal errors to client; log and continue
-            print("Warning: failed to store login secS in temporary store for", request.email)
+            logger.error("Warning: failed to store login secS in temporary store for %s", request.email)
 
         base64Resp = base64url_encode(resp)
 
-        print("Create Credential Response: ", base64Resp)
+        logger.debug("Create Credential Response: %s", base64Resp)
 
         return LoginStartResponse(login_response=base64Resp)
 
     except Exception as e:
-        print("Error processing user login start:", e)
+        logger.error("Error processing user login start: %s", e)
         raise HTTPException(status_code=500, detail="Failed to process user login start")
 
 async def process_user_login_finish(request: LoginFinishRequest, db: AsyncSession):
     try:
-        print("processing user login finish...")
+        logger.debug("Processing user login finish...")
         user = await get_user_by_email(db, request.email)
         if not user:
-            print("No user found with email:", request.email)
+            logger.warning("No user found with email: %s", request.email)
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         
         secS = pop_login_secS_for_email(request.email)
@@ -184,7 +170,7 @@ async def process_user_login_finish(request: LoginFinishRequest, db: AsyncSessio
         return auth_response
 
     except Exception as e:
-        print("Error processing user login finish:", e)
+        logger.error("Error processing user login finish: %s", e)
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Failed to process user login finish")
 
@@ -232,25 +218,22 @@ async def process_get_user_record(
 
 async def process_reset_master_pwd_finish(request: ResetFinishRequest, db: AsyncSession) -> ResetFinishResponse:
 
-    print("Processing user reset master pwd finish...")
+    logger.debug("Processing user reset master pwd finish...")
 
     #  check user existence
     user = await get_user_by_id(db, request.user_id)
     if not user:
-        print("User not found:", request.user_id)
+        logger.warning("User not found: %s", request.user_id)
         return ResetFinishResponse(status=False)
 
     secS = pop_secS_for_email(user.email)
 
-    # length of secS
-    print("Length of retrieved secS:", len(secS) if secS else "None")
+    logger.debug("Length of retrieved secS: %s", len(secS) if secS else "None")
 
     rec1 = opaque.StoreUserRecord(
         secS,
         request.master_key_verifier,
     )
-
-    print("Created user record of length:", len(rec1))
 
     user.master_key_salt = request.master_key_salt
     user.master_key_verifier = rec1
@@ -261,9 +244,9 @@ async def process_reset_master_pwd_finish(request: ResetFinishRequest, db: Async
     updated_user = await update_user(db, user)
 
     if not updated_user:
-        print("Failed to update user.")
+        logger.error("Failed to update user.")
         return ResetFinishResponse(status=False)
 
-    print("Successfully updated user with ID:", updated_user.id)
+    logger.info("Successfully updated user with ID: %s", updated_user.id)
 
     return ResetFinishResponse(status=True, user_info=UserPublic.model_validate(updated_user))

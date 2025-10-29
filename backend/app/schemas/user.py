@@ -125,23 +125,13 @@ class TokenPayload(BaseModel):
 class AuthResponse(BaseModel):
     status: bool
     access_token: str 
-    master_key_salt: bytes
-    encrypted_vault_key: bytes
-    vault_key_nonce: bytes
-    
+    master_key_salt: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+    encrypted_vault_key: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+    vault_key_nonce: Annotated[bytes, PlainSerializer(lambda x: base64url_encode(x), return_type=str)]
+
     # 3. Public User Details (Optional)
     user: Optional[UserPublic] = None
 
-    @field_validator(
-            "master_key_salt",
-            "encrypted_vault_key",
-            "vault_key_nonce",
-            mode="after",
-            )
-    def _encode_b64url(cls, v):
-        if isinstance(v, bytes):
-            return base64url_encode(v)
-        raise TypeError("expected bytes for binary field")
 
 class UserCreateInternal(BaseModel):
     full_name: str

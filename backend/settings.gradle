@@ -1,5 +1,0 @@
-rootProject.name = "my-pass-vault-backend"
-
-include("auth-service")
-include("vault-service")
-// include("gateway-service")

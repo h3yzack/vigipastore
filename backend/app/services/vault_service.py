@@ -3,29 +3,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..crud.vault_crud import create_update_vault, get_unique_tags, get_vault_by_id, get_vaults_by_tag, get_vaults_by_user_id, search_vaults
 from ..schemas.vault import VaultRecordRequest, VaultRecordResponse, VaultRecordsResponse, VaultTagsResponse
+import logging
 
+logger = logging.getLogger(__name__)
 
 async def process_vault_add_update(request: VaultRecordRequest, db: AsyncSession) -> VaultRecordResponse:
-    print("Processing vault add/update request...")
+    logger.debug("Processing vault add/update request...")
 
     try:
         # Check if updating existing record
         if request.id:
-            print(f"Updating existing vault record with ID: {request.id}")
+            logger.info("Updating existing vault record with ID: %s", request.id)
             existing_vault = await get_vault_by_id(db, request.id)
             if not existing_vault:
-                print("Vault record not found for update.")
+                logger.warning("Vault record not found for update: %s", request.id)
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Vault record not found for update."
                 )
         else:
-            print(f"Creating new vault record for user ID: {request.user_id}")
+            logger.info("Creating new vault record for user ID: %s", request.user_id)
 
         # Create or update the vault record
         vault_model = await create_update_vault(db, request)
-        
-        print(f"Vault record processed successfully with ID: {vault_model.id}")
+
+        logger.info("Vault record processed successfully with ID: %s", vault_model.id)
         
         return VaultRecordResponse(
             status=True,
@@ -35,7 +37,7 @@ async def process_vault_add_update(request: VaultRecordRequest, db: AsyncSession
         # Re-raise HTTPExceptions to be handled by FastAPI
         raise
     except Exception as e:
-        print("Error processing vault add/update request:", e)
+        logger.error("Error processing vault add/update request: %s", e)
         return VaultRecordResponse(
             status=False,
             record=None,
@@ -47,14 +49,14 @@ async def get_user_vaults(user_id: str, db: AsyncSession) -> VaultRecordsRespons
 
     try:
         result = await get_vaults_by_user_id(db, user_id)
-        print("Retrieved user vaults successfully.", result)
+        logger.debug("Retrieved user vaults successfully: %d records", len(result))
 
         return VaultRecordsResponse(
             status=True,
             records=result
         )
     except Exception as e:
-        print("Error retrieving user vaults:", e)
+        logger.error("Error retrieving user vaults: %s", e)
         return VaultRecordsResponse(
             status=False,
             records=None,
@@ -66,19 +68,19 @@ async def get_user_vault_by_id(db: AsyncSession, record_id: str, user_id: str) -
     try:
         vault_record = await get_vault_by_id(db, record_id)
         if vault_record and vault_record.user_id == user_id:
-            print(f"Vault record with ID {record_id} retrieved successfully.")
+            logger.debug("Vault record with ID %s retrieved successfully.", record_id)
             return VaultRecordResponse(
                 status=True,
                 record=vault_record
             )
         else:
-            print(f"Vault record with ID {record_id} not found.")
+            logger.warning("Vault record with ID %s not found.", record_id)
             return VaultRecordResponse(
                 status=False,
                 record=None
             )
     except Exception as e:
-        print("Error retrieving vault record by ID:", e)
+        logger.error("Error retrieving vault record by ID: %s", e)
         return VaultRecordResponse(
             status=False,
             record=None,
@@ -98,14 +100,14 @@ async def process_vault_delete(record_id: str, user_id: str, db: AsyncSession) -
 
         await db.delete(vault_record)
         await db.commit()
-        print(f"Vault record with ID {record_id} deleted successfully.")
+        logger.info("Vault record with ID %s deleted successfully.", record_id)
         return VaultRecordResponse(
             status=True,
             record=None,
             message="Vault record deleted successfully."
         )
     except Exception as e:
-        print("Error deleting vault record:", e)
+        logger.error("Error deleting vault record: %s", e)
         return VaultRecordResponse(
             status=False,
             record=None,
@@ -123,7 +125,7 @@ async def get_user_vault_tags(user_id: str, db: AsyncSession) -> VaultTagsRespon
             tags=tags_list
         )
     except Exception as e:
-        print("Error retrieving user vault tags:", e)
+        logger.error("Error retrieving user vault tags: %s", e)
         return VaultTagsResponse(
             status=False,
             tags=None,
@@ -141,7 +143,7 @@ async def get_user_vault_by_tag(user_id: str, tag: str, db: AsyncSession) -> Vau
             records=all_vaults
         )
     except Exception as e:
-        print("Error retrieving vault records by tag:", e)
+        logger.error("Error retrieving vault records by tag: %s", e)
         return VaultRecordsResponse(
             status=False,
             records=None,
@@ -159,7 +161,7 @@ async def search_vault_records(user_id: str, query: str | None, tag: str | None,
             records=all_vaults
         )
     except Exception as e:
-        print("Error searching vault records:", e)
+        logger.error("Error searching vault records: %s", e)
         return VaultRecordsResponse(
             status=False,
             records=None,

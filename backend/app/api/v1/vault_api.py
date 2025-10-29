@@ -7,7 +7,9 @@ from ...services.vault_service import get_user_vault_by_id, get_user_vault_by_ta
 from ...schemas.vault import VaultRecordRequest, VaultRecordResponse, VaultRecordsResponse, VaultTagsResponse
 from ...database import get_db
 from ...core.auth_filter import get_current_user_from_header
+import logging
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/vault",
@@ -16,13 +18,13 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=VaultRecordResponse)
+@router.post("", response_model=VaultRecordResponse)
 async def add_update_record(
     request: VaultRecordRequest,
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print("Received add_update_record request:", request)
+    logger.debug("Received add_update_record request for: %s", request.title)
 
     # Set user_id from authenticated user to prevent unauthorized access
     request.user_id = current_user.id
@@ -36,7 +38,7 @@ async def get_vaults_record_for_user(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print("Received get_vaults_record_for_user request")
+    logger.debug("Received get_vaults_record_for_user request for user ID: %s", current_user.id)
 
     response = await get_user_vaults(current_user.id, db)
 
@@ -48,7 +50,7 @@ async def get_vault_record(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"Received get_vault_record request for record ID: {record_id}")
+    logger.debug("Received get_vault_record request for record ID: %s", record_id)
 
     response = await get_user_vault_by_id(db, record_id=record_id, user_id=current_user.id)
 
@@ -60,7 +62,7 @@ async def delete_vault_record(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"Received delete_vault_record request for record ID: {record_id}")
+    logger.debug("Received delete_vault_record request for record ID: %s", record_id)
 
     response = await process_vault_delete(record_id, current_user.id, db)  
     return response
@@ -70,7 +72,7 @@ async def get_vault_tags_for_user(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print("Received get_vault_tags_for_user request")
+    logger.debug("Received get_vault_tags_for_user request for user ID: %s", current_user.id)
 
     response = await get_user_vault_tags(current_user.id, db)
 
@@ -82,7 +84,7 @@ async def filter_vaults_by_tag(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"Received filter_vaults_by_tag request for tag: {tag}")
+    logger.debug("Received filter_vaults_by_tag request for tag: %s", tag)
 
     # decode url-encoded tag
     decoded_tag = urllib.parse.unquote(tag)
@@ -98,7 +100,7 @@ async def search_vaults(
     current_user=Depends(get_current_user_from_header),
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"Received search_vaults request for query: {query}")
+    logger.debug("Received search_vaults request for query: %s", query)
     decoded_query = urllib.parse.unquote(query) if query else None
     decoded_tag = urllib.parse.unquote(tag) if tag else None
 

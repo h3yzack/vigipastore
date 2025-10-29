@@ -21,7 +21,7 @@ export async function addOrUpdateRequest(request: VaultRecordRequest): Promise<V
       //   };
 
         return serverResp.data;
-    } catch (error: any) {
+    } catch (error) {
         console.error("registerUserStartRequest - error", error);
         throw new Error(getApiErrorMessage(error, "Registration failed."));
     }
@@ -52,7 +52,7 @@ export async function fetchUserVaults(): Promise<VaultRecordResponse> {
             status: serverResp.data.status,
             records,
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("fetchUserVaults - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to fetch vault records."));
     }
@@ -63,7 +63,7 @@ export async function deleteVaultRecord(id: string): Promise<VaultRecordResponse
         const serverResp = await apiClient.delete(appConfig.API.ENDPOINTS.VAULT_DELETE_RECORD.replace(':id', id));
 
         return serverResp.data;
-    } catch (error: any) {
+    } catch (error) {
         console.error("deleteVaultRecord - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to delete vault record."));
     }
@@ -74,7 +74,7 @@ export async function fetchUserTags(): Promise<string[]> {
         const serverResp = await apiClient.get(appConfig.API.ENDPOINTS.VAULT_LIST_USER_TAGS);
 
         return serverResp.data.tags;
-    } catch (error: any) {
+    } catch (error) {
         console.error("fetchUserTags - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to fetch vault tags."));
     }
@@ -94,7 +94,7 @@ export async function fetchVaultRecordById(id: string): Promise<VaultRecordRespo
             status: serverResp.data.status,
             record,
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("fetchVaultRecordById - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to fetch vault record."));
     }
@@ -116,7 +116,7 @@ export async function fetchUserVaultsByTag(tag: string): Promise<VaultRecordResp
             status: serverResp.data.status,
             records,
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("fetchUserVaults - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to fetch vault records."));
     }
@@ -140,7 +140,7 @@ export async function searchVaultRecords(query: string | null | undefined, tag: 
             status: serverResp.data.status,
             records,
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("searchVaults - error", error);
         throw new Error(getApiErrorMessage(error, "Failed to search vault records."));
     }

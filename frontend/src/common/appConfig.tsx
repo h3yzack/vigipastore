@@ -1,5 +1,5 @@
 
-const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL || "http://localhost:8000";
+const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL || "/api/v1";
 const SERVER_PUBLIC_KEY = import.meta.env.VITE_SERVER_PUBLIC_KEY || "";
 
 export const appConfig = {

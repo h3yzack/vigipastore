@@ -102,7 +102,7 @@ export default function AddSecret({
             setSubmitLoading(true);
             const status = await vaultService.saveOrUpdateVault(values);
             if (status) {
-                setFormState(prev => ({ ...prev, passwordStrength: calculatePasswordStrength('') }));
+                onReset();
                 onCreate(true);
             }
         } finally {

@@ -49,7 +49,6 @@ async def update_user_email(session: AsyncSession, user_id: int, new_email: str)
         await session.commit()
         await session.refresh(user)
 
-        print(f"Updated user: {user}")
     return user
 
 # --- DELETE ---
@@ -76,7 +75,6 @@ async def update_user_profile(session: AsyncSession, user_info: UserPublic) -> O
         await session.commit()
         await session.refresh(user)
 
-        print(f"Updated user: {user}")
     return user
 
 async def update_user(session: AsyncSession, user: User) -> Optional[User]:
@@ -94,5 +92,4 @@ async def update_user(session: AsyncSession, user: User) -> Optional[User]:
         await session.commit()
         await session.refresh(existing_user)
 
-        print(f"Updated user: {existing_user}")
     return existing_user

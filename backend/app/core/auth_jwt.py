@@ -22,8 +22,6 @@ def create_access_token(subject: str, *, expires_delta: Optional[timedelta] = No
         "type": "access"
    }
 
-   print("payload: ", payload)
-
    token = jwt.encode(payload, settings.API_SECRET_KEY, algorithm=settings.ALGORITHM)
    return token
 
